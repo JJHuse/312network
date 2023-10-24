@@ -8,7 +8,8 @@ import numpy as np
 
 class NetworkRoutingSolver:
     def __init__( self):
-        pass
+        self.dist = []
+        self.prevs = []
 
     def initializeNetwork( self, network ):
         assert( type(network) == CS312Graph )
@@ -35,7 +36,7 @@ class NetworkRoutingSolver:
     def computeShortestPaths( self, srcIndex, use_heap=False ):
         self.source = srcIndex
         t1 = time.time()
-        self.prevs = self.dijkstra(srcIndex)
+        self.dist, self.prevs = self.dijkstra(srcIndex)
         # TODO: RUN DIJKSTRA'S TO DETERMINE SHORTEST PATHS.
         #       ALSO, STORE THE RESULTS FOR THE SUBSEQUENT
         #       CALL TO getShortestPath(dest_index)
@@ -58,7 +59,8 @@ class NetworkRoutingSolver:
                 if dist[edge.dest.node_id] is None or alt < dist[edge.dest.node_id]:
                     dist[edge.dest.node_id] = alt
                     prevs[edge.dest.node_id] = node.node_id
-                    priority_queue.decrease_key(edge)
+                    priority_queue.decrease_key(edge, alt)
+        return dist, prevs
 
 
 
