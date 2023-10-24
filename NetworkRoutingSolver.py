@@ -45,7 +45,6 @@ class NetworkRoutingSolver:
     
     def dijkstra(self, srcIndex: int):
         """Iterative method to find the shortest path from srcIndex to all other nodes in the network"""
-        first_node = self.network.nodes[srcIndex]
         dist = [None] * len(self.network.nodes)
         dist[srcIndex] = 0
         prevs = [None] * len(self.network.nodes)
@@ -63,39 +62,44 @@ class NetworkRoutingSolver:
         return dist, prevs
 
 
-
-
-
 class array_heap:
     def __init__(self):
         self.heap = []
 
     def is_empty(self):
+        """Returns True if the heap is empty, False otherwise"""
         pass
 
     def make_queue(self, nodes: list):
+        """Add every edge to the queue, then bubble to make it a heap"""
         pass
 
     def insert(self, edge: CS312GraphEdge):
         self.heap.append(edge)
-        self.bubbleup(edge)
+        self.bubble_up(edge)
     
     def bubble_up(self, edge: CS312GraphEdge):
+        """Bring the edge up the heap until it is larger than its parent"""
         pass
 
     def get_child(self, node: CS312GraphNode):
+        """Calculate the positions of this node's children"""
         pass
 
     def get_parent(self, node: CS312GraphNode):
+        """Calculate the position of this node's parent"""
         pass
 
     def bubble_down(self, edge: CS312GraphEdge):
+        """Bring the edge down the heap until it is smaller than its children"""
         pass
 
     def delete_min(self) -> CS312GraphEdge:
+        """Remove the smallest edge, switch the end edge to the top, and bubble it down"""
         pass
 
     def decrease_key(self, edge: CS312GraphEdge):
+        """Decrease the key of the edge and bubble it up"""
         pass
 
 
