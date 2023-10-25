@@ -71,7 +71,7 @@ class array_heap:
         """Returns True if the heap is empty, False otherwise"""
         return len(self.heap) == 0
 
-    def make_queue(self, nodes: list):
+    def make_queue(self, nodes: list) -> None:
         """Add every edge to the queue, then bubble to make it a heap"""
         for node in nodes:
             for edge in node.neighbors:
@@ -80,19 +80,19 @@ class array_heap:
         for edge in self.heap[::-1]:
             self.bubble_up(edge)
 
-    def insert(self, edge: CS312GraphEdge):
+    def insert(self, edge: CS312GraphEdge) -> None:
         self.heap.append(edge)
         self.edge_tracker[edge.get_nice_key()] = len(self.heap) - 1
         self.bubble_up(edge)
     
-    def bubble_up(self, edge: CS312GraphEdge):
+    def bubble_up(self, edge: CS312GraphEdge) -> None:
         """Bring the edge up the heap until it is larger than its parent"""
         parent = self.get_parent(edge)
         if parent is not None and edge.length < parent.length:
             self.swap_edges(edge, parent)
             self.bubble_up(edge)
     
-    def swap_edges(self, first, second):
+    def swap_edges(self, first, second) -> None:
         """Swap the positions of two edges in the heap"""
         first_index = self.edge_tracker[first.get_nice_key()]
         second_index = self.edge_tracker[second.get_nice_key()]
@@ -101,7 +101,7 @@ class array_heap:
         self.heap[first_index] = second
         self.heap[second_index] = first
 
-    def get_children(self, edge: CS312GraphEdge):
+    def get_children(self, edge: CS312GraphEdge) -> tuple:
         """Get this edge's children"""
         parent_index = self.edge_tracker[edge.get_nice_key()]
         firstborn_index = parent_index * 2 + 1
@@ -112,7 +112,7 @@ class array_heap:
             return self.heap[firstborn_index], None
         return self.heap[firstborn_index], self.heap[secondborn_index]
 
-    def get_parent(self, edge: CS312GraphEdge):
+    def get_parent(self, edge: CS312GraphEdge) -> CS312GraphEdge:
         """Get this edge's parent"""
         node_index = self.edge_tracker[edge.get_nice_key()]
         parent_index = (node_index - 1) // 2
@@ -120,16 +120,43 @@ class array_heap:
             return None
         return self.heap[parent_index]
 
-    def bubble_down(self, edge: CS312GraphEdge):
+    def bubble_down(self, edge: CS312GraphEdge) -> None:
         """Bring the edge down the heap until it is smaller than its children"""
-        pass
+        firstborn, secondborn = self.get_children(edge)
+        if firstborn is None:
+            return
+        if secondborn is None:
+            if edge.length > firstborn.length:
+                self.swap_edges(edge, firstborn)
+                self.bubble_down(edge)
+            return
+        if firstborn.length < secondborn.length:
+            if edge.length > firstborn.length:
+                self.swap_edges(edge, firstborn)
+                self.bubble_down(edge)
+        else:
+            if edge.length > secondborn.length:
+                self.swap_edges(edge, secondborn)
+                self.bubble_down(edge)
 
     def delete_min(self) -> CS312GraphEdge:
         """Remove the smallest edge, switch the end edge to the top, and bubble it down"""
-        pass
+        if self.is_empty():
+            return None
+        if len(self.heap) == 1:
+            return self.heap.pop()
+        
+        min_edge = self.heap[0]
 
-    def decrease_key(self, edge: CS312GraphEdge):
+        last_edge = self.heap.pop()
+        self.heap[0] = last_edge
+        self.edge_tracker[last_edge.get_nice_key()] = 0
+        self.bubble_down(last_edge)
+        return min_edge
+
+    def decrease_key(self, edge: CS312GraphEdge, new_length: int) -> None:
         """Decrease the key of the edge and bubble it up"""
-        pass
+        edge.length = new_length
+        self.bubble_up(edge)
 
 
