@@ -101,16 +101,24 @@ class array_heap:
         self.heap[first_index] = second
         self.heap[second_index] = first
 
-        
-        
+    def get_children(self, edge: CS312GraphEdge):
+        """Get this edge's children"""
+        parent_index = self.edge_tracker[edge.get_nice_key()]
+        firstborn_index = parent_index * 2 + 1
+        secondborn_index = parent_index * 2 + 2
+        if firstborn_index >= len(self.heap):
+            return None, None
+        if secondborn_index >= len(self.heap):
+            return self.heap[firstborn_index], None
+        return self.heap[firstborn_index], self.heap[secondborn_index]
 
-    def get_child(self, node: CS312GraphNode):
-        """Calculate the positions of this node's children"""
-        pass
-
-    def get_parent(self, node: CS312GraphNode):
-        """Calculate the position of this node's parent"""
-        pass
+    def get_parent(self, edge: CS312GraphEdge):
+        """Get this edge's parent"""
+        node_index = self.edge_tracker[edge.get_nice_key()]
+        parent_index = (node_index - 1) // 2
+        if parent_index < 0:
+            return None
+        return self.heap[parent_index]
 
     def bubble_down(self, edge: CS312GraphEdge):
         """Bring the edge down the heap until it is smaller than its children"""
