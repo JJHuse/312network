@@ -12,9 +12,6 @@ class CS312GraphEdge:
 
     def __str__( self ):
         return '(src={} dest={} length={})'.format(self.src,self.dest,self.length)
-    
-    def get_nice_key(self):
-        return '{}--{}'.format(self.src.node_id,self.dest.node_id)
 
 class CS312GraphNode:
     def __init__( self, node_id, node_loc ):

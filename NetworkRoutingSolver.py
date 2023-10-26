@@ -17,10 +17,6 @@ class NetworkRoutingSolver:
 
     def getShortestPath( self, destIndex ):
         self.dest = destIndex
-        # TODO: RETURN THE SHORTEST PATH FOR destIndex
-        #       INSTEAD OF THE DUMMY SET OF EDGES BELOW
-        #       IT'S JUST AN EXAMPLE OF THE FORMAT YOU'LL 
-        #       NEED TO USE
         path_edges = []
         total_length = 0
         node = self.network.nodes[self.source]
@@ -46,6 +42,7 @@ class NetworkRoutingSolver:
         distances = [None] * len(self.network.nodes)
         distances[srcIndex] = 0
         prevs = [None] * len(self.network.nodes)
+        
         priority_queue = array_heap()
         priority_queue.make_queue(self.network.nodes)
 
@@ -80,6 +77,7 @@ class array_heap:
             self.bubble_up(node)
 
     def insert(self, node: CS312GraphNode) -> None:
+        """Add new node and bubble it up"""
         self.heap.append(node)
         self.heap_map[node.node_id] = len(self.heap) - 1
         self.bubble_up(node)
@@ -160,7 +158,7 @@ class array_heap:
 
     def decrease_key(self, node: CS312GraphNode, new_distance) -> None:
         """Decrease the key of the node and bubble it up"""
-        node.length = new_distance
+        node.distance = new_distance
         self.bubble_up(node)
 
 
