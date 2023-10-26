@@ -93,7 +93,15 @@ class array_heap:
     
     def swap(self, first, second) -> None:
         """Swap the positions of two edges in the heap"""
-        
+        # get locations
+        first_index = self.heap_map[first.node_id]
+        second_index = self.heap_map[second.node_id]
+        # heap swap
+        self.heap[first_index] = second
+        self.heap[second_index] = first
+        # new locations
+        self.heap_map[first.node_id] = second_index
+        self.heap_map[second.node_id] = first_index
 
     def get_children(self, edge: CS312GraphEdge) -> tuple:
         """Get this edge's children"""
