@@ -122,43 +122,45 @@ class array_heap:
         parent_index = (node_index - 1) // 2
         return self.heap[parent_index]
 
-    def bubble_down(self, edge: CS312GraphEdge) -> None:
-        """Bring the edge down the heap until it is smaller than its children"""
-        firstborn, secondborn = self.get_children(edge)
+    def bubble_down(self, node: CS312GraphNode) -> None:
+        """Bring the node down the heap until it is smaller than its children"""
+        firstborn, secondborn = self.get_children(node)
         if firstborn is None:
             return
         if secondborn is None:
-            if edge.length > firstborn.length:
-                self.swap_edges(edge, firstborn)
-                self.bubble_down(edge)
+            if node.distance > firstborn.distance:
+                self.swap(node, firstborn)
+                self.bubble_down(node)
             return
-        if firstborn.length < secondborn.length:
-            if edge.length > firstborn.length:
-                self.swap_edges(edge, firstborn)
-                self.bubble_down(edge)
+        if firstborn.distance < secondborn.distance:
+            if node.distance > firstborn.distance:
+                self.swap(node, firstborn)
+                self.bubble_down(node)
         else:
-            if edge.length > secondborn.length:
-                self.swap_edges(edge, secondborn)
-                self.bubble_down(edge)
+            if node.distance > secondborn.distance:
+                self.swap(node, secondborn)
+                self.bubble_down(node)
 
-    def delete_min(self) -> CS312GraphEdge:
-        """Remove the smallest edge, switch the end edge to the top, and bubble it down"""
+    def delete_min(self) -> CS312GraphNode:
+        """Remove the smallest node, switch the end node to the top, and bubble it down"""
         if self.is_empty():
             return None
+        
+        min_node = self.heap[0]
+        self.heap_map[min_node.node_id] = None
+
         if len(self.heap) == 1:
             return self.heap.pop()
-        
-        min_edge = self.heap[0]
 
-        last_edge = self.heap.pop()
-        self.heap[0] = last_edge
-        self.edge_lengths[last_edge.get_nice_key()] = 0
-        self.bubble_down(last_edge)
-        return min_edge
+        last_node = self.heap.pop()
+        self.heap[0] = last_node
+        self.heap_map[last_node.node_id] = 0
+        self.bubble_down(last_node)
+        return min_node
 
-    def decrease_key(self, edge: CS312GraphEdge, new_length: int) -> None:
-        """Decrease the key of the edge and bubble it up"""
-        edge.length = new_length
-        self.bubble_up(edge)
+    def decrease_key(self, node: CS312GraphNode, new_distance) -> None:
+        """Decrease the key of the node and bubble it up"""
+        node.length = new_distance
+        self.bubble_up(node)
 
 
