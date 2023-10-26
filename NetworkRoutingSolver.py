@@ -26,17 +26,18 @@ class NetworkRoutingSolver:
         node = self.network.nodes[self.source]
         while self.prevs[dest_index] is not None:
             prev_index = self.prevs[dest_index]
-            # TODO: track path
+            precursor = self.network.nodes[prev_index]
+            for edge in precursor.neighbors:
+                if edge.dest.node_id == dest_index:
+                    path_edges.insert(0, edge)
+                    break
             dest_index = prev_index
-        return {'cost':self.distances[self.dest], 'path':path_edges}
+        return {'cost':self.dest.distance, 'path':path_edges}
 
     def computeShortestPaths( self, srcIndex, use_heap=False ):
         self.source = srcIndex
         t1 = time.time()
         self.distances, self.prevs = self.dijkstra(srcIndex)
-        # TODO: RUN DIJKSTRA'S TO DETERMINE SHORTEST PATHS.
-        #       ALSO, STORE THE RESULTS FOR THE SUBSEQUENT
-        #       CALL TO getShortestPath(dest_index)
         t2 = time.time()
         return (t2-t1)
     
@@ -62,41 +63,37 @@ class NetworkRoutingSolver:
 class array_heap:
     def __init__(self):
         self.heap = []
-        self.edge_lengths = {}
+        self.heap_map = []
 
     def is_empty(self) -> bool:
         """Returns True if the heap is empty, False otherwise"""
         return len(self.heap) == 0
 
     def make_queue(self, nodes: list) -> None:
-        """Add every edge to the queue, then bubble to make it a heap"""
+        """Add every node to the queue, then bubble to make it a heap"""
+        self.distances = [None] * len(nodes)
+        self.heap_map = [None] * len(nodes)
         for node in nodes:
-            for edge in node.neighbors:
-                self.heap.append(edge)
-                self.edge_lengths[edge.get_nice_key()] = len(self.heap) - 1
-        for edge in self.heap[::-1]:
-            self.bubble_up(edge)
+            self.heap.append(node)
+            self.heap_map[node.node_id] = len(self.heap) - 1
+        for node in self.heap[::-1]:
+            self.bubble_up(node)
 
-    def insert(self, edge: CS312GraphEdge) -> None:
-        self.heap.append(edge)
-        self.edge_lengths[edge.get_nice_key()] = len(self.heap) - 1
-        self.bubble_up(edge)
+    def insert(self, node: CS312GraphNode) -> None:
+        self.heap.append(node)
+        self.heap_map[node.node_id] = len(self.heap) - 1
+        self.bubble_up(node)
     
-    def bubble_up(self, edge: CS312GraphEdge) -> None:
-        """Bring the edge up the heap until it is larger than its parent"""
-        parent = self.get_parent(edge)
-        if parent is not None and edge.length < parent.length:
-            self.swap_edges(edge, parent)
-            self.bubble_up(edge)
+    def bubble_up(self, node: CS312GraphNode) -> None:
+        """Bring the node up the heap until it is larger than its parent"""
+        parent = self.get_parent(node)
+        if parent is not None and node.distance < parent.distance:
+            self.swap(node, parent)
+            self.bubble_up(node)
     
-    def swap_edges(self, first, second) -> None:
+    def swap(self, first, second) -> None:
         """Swap the positions of two edges in the heap"""
-        first_index = self.edge_lengths[first.get_nice_key()]
-        second_index = self.edge_lengths[second.get_nice_key()]
-        self.edge_lengths[first.get_nice_key()] = second_index
-        self.edge_lengths[second.get_nice_key()] = first_index
-        self.heap[first_index] = second
-        self.heap[second_index] = first
+        
 
     def get_children(self, edge: CS312GraphEdge) -> tuple:
         """Get this edge's children"""
@@ -110,11 +107,11 @@ class array_heap:
         return self.heap[firstborn_index], self.heap[secondborn_index]
 
     def get_parent(self, edge: CS312GraphEdge) -> CS312GraphEdge:
-        """Get this edge's parent"""
+        """Get this node's parent"""
         node_index = self.edge_lengths[edge.get_nice_key()]
-        parent_index = (node_index - 1) // 2
-        if parent_index < 0:
+        if node_index == 0:
             return None
+        parent_index = (node_index - 1) // 2
         return self.heap[parent_index]
 
     def bubble_down(self, edge: CS312GraphEdge) -> None:
