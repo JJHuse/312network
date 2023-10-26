@@ -103,9 +103,9 @@ class array_heap:
         self.heap_map[first.node_id] = second_index
         self.heap_map[second.node_id] = first_index
 
-    def get_children(self, edge: CS312GraphEdge) -> tuple:
-        """Get this edge's children"""
-        parent_index = self.edge_lengths[edge.get_nice_key()]
+    def get_children(self, node: CS312GraphNode) -> tuple:
+        """Get this node's children"""
+        parent_index = self.heap_map[node.node_id]
         firstborn_index = parent_index * 2 + 1
         secondborn_index = parent_index * 2 + 2
         if firstborn_index >= len(self.heap):
@@ -114,9 +114,9 @@ class array_heap:
             return self.heap[firstborn_index], None
         return self.heap[firstborn_index], self.heap[secondborn_index]
 
-    def get_parent(self, edge: CS312GraphEdge) -> CS312GraphEdge:
+    def get_parent(self, node: CS312GraphNode) -> CS312GraphNode:
         """Get this node's parent"""
-        node_index = self.edge_lengths[edge.get_nice_key()]
+        node_index = self.heap_map[node.node_id]
         if node_index == 0:
             return None
         parent_index = (node_index - 1) // 2
