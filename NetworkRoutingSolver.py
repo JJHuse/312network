@@ -5,7 +5,7 @@ from CS312Graph import *
 import time
 import numpy as np
 
-
+# TODO: Deal with inifinity
 class NetworkRoutingSolver:
     def __init__( self):
         self.distances = []
@@ -42,7 +42,7 @@ class NetworkRoutingSolver:
         distances = [None] * len(self.network.nodes)
         distances[srcIndex] = 0
         prevs = [None] * len(self.network.nodes)
-        
+
         priority_queue = array_heap()
         priority_queue.make_queue(self.network.nodes)
 
