@@ -3,12 +3,10 @@
 
 from CS312Graph import *
 import time
-import numpy as np
 
-# TODO: Deal with inifinity
+
 class NetworkRoutingSolver:
     def __init__( self):
-        self.distances = []
         self.prevs = []
 
     def initializeNetwork( self, network ):
@@ -16,45 +14,49 @@ class NetworkRoutingSolver:
         self.network = network
 
     def getShortestPath( self, destIndex ):
-        self.dest = destIndex
         path_edges = []
         total_length = 0
         node = self.network.nodes[self.source]
-        while self.prevs[dest_index] is not None:
-            prev_index = self.prevs[dest_index]
+        curr_dest = destIndex
+        while self.prevs[curr_dest] is not None:
+            prev_index = self.prevs[curr_dest]
             precursor = self.network.nodes[prev_index]
             for edge in precursor.neighbors:
-                if edge.dest.node_id == dest_index:
-                    path_edges.insert(0, edge)
+                if edge.dest.node_id == curr_dest:
+                    path_edges.append((edge.src.loc, edge.dest.loc, '{:.0f}'.format(edge.length)))
                     break
-            dest_index = prev_index
-        return {'cost':self.dest.distance, 'path':path_edges}
+            curr_dest = prev_index
+
+        path_edges = path_edges[::-1]
+        dest = self.network.nodes[destIndex]
+        return {'cost':dest.distance, 'path':path_edges}
 
     def computeShortestPaths( self, srcIndex, use_heap=False ):
         self.source = srcIndex
         t1 = time.time()
-        self.distances, self.prevs = self.dijkstra(srcIndex)
+        self.prevs = self.dijkstra(srcIndex)
         t2 = time.time()
-        return (t2-t1)
+        return (t2 - t1)
     
     def dijkstra(self, srcIndex: int):
         """Iterative method to find the shortest path from srcIndex to all other nodes in the network"""
-        distances = [None] * len(self.network.nodes)
-        distances[srcIndex] = 0
         prevs = [None] * len(self.network.nodes)
 
         priority_queue = array_heap()
-        priority_queue.make_queue(self.network.nodes)
+        priority_queue.make_queue(self.network.nodes, srcIndex)
 
         while not priority_queue.is_empty():
             node = priority_queue.delete_min()
+            past = node.distance
             for edge in node.neighbors:
-                alt = distances[node.node_id] + edge.length
-                if distances[edge.dest.node_id] is None or alt < distances[edge.dest.node_id]:
-                    distances[edge.dest.node_id] = alt
-                    prevs[edge.dest.node_id] = node.node_id
-                    priority_queue.decrease_key(edge, alt)
-        return distances, prevs
+                dest = edge.dest
+                alt = past + edge.length
+
+                if dest.distance == float('inf') or alt < dest.distance:
+                    prevs[dest.node_id] = node.node_id
+                    priority_queue.decrease_key(dest, alt)
+
+        return prevs
 
 
 class array_heap:
@@ -66,15 +68,21 @@ class array_heap:
         """Returns True if the heap is empty, False otherwise"""
         return len(self.heap) == 0
 
-    def make_queue(self, nodes: list) -> None:
+    def make_queue(self, nodes: list, srcIndex) -> None:
         """Add every node to the queue, then bubble to make it a heap"""
-        self.distances = [None] * len(nodes)
         self.heap_map = [None] * len(nodes)
+
         for node in nodes:
             self.heap.append(node)
             self.heap_map[node.node_id] = len(self.heap) - 1
-        for node in self.heap[::-1]:
-            self.bubble_up(node)
+            node.distance = float('inf')
+        
+        source = nodes[srcIndex]
+        self.swap(source, self.heap[0])
+        source.distance = 0
+        ### All infinity
+        # for node in self.heap[::-1]:
+        #     self.bubble_up(node)
 
     def insert(self, node: CS312GraphNode) -> None:
         """Add new node and bubble it up"""
