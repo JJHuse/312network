@@ -34,15 +34,18 @@ class NetworkRoutingSolver:
     def computeShortestPaths( self, srcIndex, use_heap=False ):
         self.source = srcIndex
         t1 = time.time()
-        self.prevs = self.dijkstra(srcIndex)
+        self.prevs = self.dijkstra(srcIndex, use_heap)
         t2 = time.time()
         return (t2 - t1)
     
-    def dijkstra(self, srcIndex: int):
+    def dijkstra(self, srcIndex: int, use_heap):
         """Iterative method to find the shortest path from srcIndex to all other nodes in the network"""
         prevs = [None] * len(self.network.nodes)
 
-        priority_queue = array_heap()
+        if use_heap:
+            priority_queue = heap_queue()
+        else:
+            priority_queue = array_queue()
         priority_queue.make_queue(self.network.nodes, srcIndex)
 
         while not priority_queue.is_empty():
@@ -50,7 +53,7 @@ class NetworkRoutingSolver:
             past = node.distance
             for edge in node.neighbors:
                 dest = edge.dest
-                if priority_queue.heap_map[dest.node_id] is None:
+                if priority_queue.was_visited(dest.node_id):
                         continue
 
                 alt = past + edge.length
@@ -60,16 +63,60 @@ class NetworkRoutingSolver:
 
         return prevs
 
-
-class array_heap:
+class queue:
     def __init__(self):
         self.heap = []
         self.heap_map = []
+
+    def was_visited(self, id):
+        return self.heap_map[id] is None
 
     def is_empty(self) -> bool:
         """Returns True if the heap is empty, False otherwise"""
         return len(self.heap) == 0
 
+class array_queue(queue):
+    def make_queue(self, nodes: list, srcIndex) -> None:
+        """Add every node to the queue"""
+        self.heap_map = [None] * len(nodes)
+
+        for node in nodes:
+            self.heap.append(node)
+            self.heap_map[node.node_id] = len(self.heap) - 1
+            node.distance = float('inf')
+        
+        source = nodes[srcIndex]
+        source.distance = 0
+
+    def insert(self, node: CS312GraphNode) -> None:
+        """Add new node"""
+        self.heap.append(node)
+        self.heap_map[node.node_id] = len(self.heap) - 1
+
+    def delete_min(self) -> CS312GraphNode:
+        """Remove the smallest node"""
+        if self.is_empty():
+            return None
+        
+        min_node = self.heap[0]
+        for node in self.heap:
+            if node.distance < min_node.distance:
+                min_node = node
+
+        heapspot = self.heap_map[min_node.node_id]
+        del self.heap[heapspot]
+        for i,node in enumerate(self.heap[heapspot:]):
+            self.heap_map[node.node_id] = i + heapspot
+
+        self.heap_map[min_node.node_id] = None
+
+        return min_node
+
+    def decrease_key(self, node: CS312GraphNode, new_distance) -> None:
+        """Decrease the key of the node"""
+        node.distance = new_distance
+
+class heap_queue(queue):
     def make_queue(self, nodes: list, srcIndex) -> None:
         """Add every node to the queue, then bubble to make it a heap"""
         self.heap_map = [None] * len(nodes)
@@ -127,8 +174,6 @@ class array_heap:
         node_index = self.heap_map[node.node_id]
         if node_index == 0:
             return None
-        if node_index is None:
-            print('here')
         parent_index = (node_index - 1) // 2
         return self.heap[parent_index]
 
