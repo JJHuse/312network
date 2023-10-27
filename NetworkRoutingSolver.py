@@ -50,8 +50,10 @@ class NetworkRoutingSolver:
             past = node.distance
             for edge in node.neighbors:
                 dest = edge.dest
-                alt = past + edge.length
+                if priority_queue.heap_map[dest.node_id] is None:
+                        continue
 
+                alt = past + edge.length
                 if dest.distance == float('inf') or alt < dest.distance:
                     prevs[dest.node_id] = node.node_id
                     priority_queue.decrease_key(dest, alt)
@@ -125,6 +127,8 @@ class array_heap:
         node_index = self.heap_map[node.node_id]
         if node_index == 0:
             return None
+        if node_index is None:
+            print('here')
         parent_index = (node_index - 1) // 2
         return self.heap[parent_index]
 
